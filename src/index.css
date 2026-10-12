@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+
+/*
+ * Tokens de diseño de Hilo.
+ * Para cambiar la paleta, edita únicamente estas variables.
+ */
+:root {
+  --hilo-bg: #f7f8fa;
+  --hilo-surface: #ffffff;
+  --hilo-text: #172033;
+  --hilo-text-muted: #667085;
+  --hilo-primary: #3157d5;
+  --hilo-primary-soft: #eaeffc;
+  --hilo-success: #16845b;
+  --hilo-success-soft: #e6f4ee;
+  --hilo-warning: #b7791f;
+  --hilo-warning-soft: #fbf1de;
+  --hilo-danger: #d92d20;
+  --hilo-danger-soft: #fdeceb;
+  --hilo-border: #e4e7ec;
+}
+
+@theme inline {
+  --color-app: var(--hilo-bg);
+  --color-surface: var(--hilo-surface);
+  --color-ink: var(--hilo-text);
+  --color-muted: var(--hilo-text-muted);
+  --color-brand: var(--hilo-primary);
+  --color-brand-soft: var(--hilo-primary-soft);
+  --color-success: var(--hilo-success);
+  --color-success-soft: var(--hilo-success-soft);
+  --color-warning: var(--hilo-warning);
+  --color-warning-soft: var(--hilo-warning-soft);
+  --color-danger: var(--hilo-danger);
+  --color-danger-soft: var(--hilo-danger-soft);
+  --color-line: var(--hilo-border);
+  --font-sans: "Inter Variable", Inter, ui-sans-serif, system-ui, sans-serif;
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.05);
+  --shadow-pop: 0 8px 24px rgb(16 24 40 / 0.12);
+}
+
+@layer base {
+  html {
+    background: var(--hilo-bg);
+  }
+  body {
+    margin: 0;
+    background: var(--hilo-bg);
+    color: var(--hilo-text);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  :focus-visible {
+    outline: 2px solid var(--hilo-primary);
+    outline-offset: 2px;
+  }
+  button,
+  a,
+  select,
+  input,
+  textarea {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+}
