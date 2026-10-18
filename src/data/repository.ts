@@ -1,4 +1,4 @@
-import { DEFAULT_TIMEZONE, todayIn } from '../domain/dates'
+import { DEFAULT_TIMEZONE, formatDate, todayIn } from '../domain/dates'
 import { formatMoney } from '../domain/money'
 import { balanceCents, checkPayment } from '../domain/orders'
 import {
@@ -116,7 +116,10 @@ export function createRepository(database: HiloDB = db) {
   /* ---------------- Pedidos ---------------- */
 
   interface NewOrderInput {
-    customerId: string
+    /** Cliente existente. Si se omite, debe indicarse `newCustomer`. */
+    customerId?: string
+    /** Cliente nuevo: se crea en la misma operación que el pedido (si algo falla, no queda un cliente huérfano). */
+    newCustomer?: { name: string; phone?: string; email?: string }
     createdDate: string
     dueDate: string
     channel: Channel
@@ -127,15 +130,29 @@ export function createRepository(database: HiloDB = db) {
 
   async function createOrder(input: NewOrderInput): Promise<Order> {
     if (input.items.length === 0) throw new HiloError('sin_conceptos', 'Agrega al menos un concepto al pedido.')
+    if (!input.customerId && !input.newCustomer) throw new HiloError('cliente_no_existe', 'Selecciona un cliente para el pedido.')
+    if (input.newCustomer && !input.newCustomer.name.trim()) throw new HiloError('cliente_sin_nombre', 'El nombre del cliente es obligatorio.')
     return database.transaction('rw', database.orders, database.payments, database.activity, database.settings, database.customers, async () => {
-      const customer = await database.customers.get(input.customerId)
+      let customer: Customer | undefined
+      if (input.newCustomer) {
+        customer = {
+          id: newId(),
+          name: input.newCustomer.name.trim(),
+          phone: input.newCustomer.phone?.trim() || undefined,
+          email: input.newCustomer.email?.trim() || undefined,
+          createdAt: new Date().toISOString(),
+        }
+        await database.customers.add(customer)
+      } else {
+        customer = await database.customers.get(input.customerId!)
+      }
       if (!customer) throw new HiloError('cliente_no_existe', 'No se encontró el cliente seleccionado.')
       const settings = await getSettings()
       const now = new Date().toISOString()
       const order: Order = {
         id: newId(),
         number: settings.nextOrderNumber,
-        customerId: input.customerId,
+        customerId: customer.id,
         createdDate: input.createdDate,
         dueDate: input.dueDate,
         channel: input.channel,
@@ -168,11 +185,16 @@ export function createRepository(database: HiloDB = db) {
       if (patch.items && patch.items.length === 0) throw new HiloError('sin_conceptos', 'El pedido debe tener al menos un concepto.')
       const next: Order = { ...current, ...patch, updatedAt: new Date().toISOString() }
       await database.orders.put(next)
-      if (patch.dueDate && patch.dueDate !== current.dueDate) {
-        await database.activity.add(activityRecord(id, 'entrega_modificada', `Fecha de entrega cambiada de ${current.dueDate} a ${patch.dueDate}.`))
-      } else {
-        await database.activity.add(activityRecord(id, 'pedido_editado', 'Pedido editado.'))
+      const dueChanged = !!patch.dueDate && patch.dueDate !== current.dueDate
+      const { dueDate: _prevDue, updatedAt: _prevUpdated, ...restBefore } = current
+      const { dueDate: _nextDue, updatedAt: _nextUpdated, ...restAfter } = next
+      const otherChanged = JSON.stringify(restBefore) !== JSON.stringify(restAfter)
+      if (dueChanged) {
+        await database.activity.add(
+          activityRecord(id, 'entrega_modificada', `Fecha de entrega cambiada de ${formatDate(current.dueDate)} a ${formatDate(next.dueDate)}.`),
+        )
       }
+      if (otherChanged) await database.activity.add(activityRecord(id, 'pedido_editado', 'Pedido editado.'))
       return next
     })
   }

@@ -95,6 +95,37 @@ describe('repositorio', () => {
     ).rejects.toMatchObject({ code: 'sin_conceptos' })
   })
 
+  it('crea cliente nuevo y pedido en una sola operación, sin dejar clientes huérfanos si falla', async () => {
+    const order = await repo.createOrder({
+      newCustomer: { name: ' Luis Pérez ', phone: '5511112222' },
+      createdDate: '2026-10-10',
+      dueDate: '2026-10-20',
+      channel: 'presencial',
+      items: [{ name: 'Tarjetas', quantity: 100, unitPriceCents: 500 }],
+      customization,
+    })
+    const customer = await database.customers.get(order.customerId)
+    expect(customer?.name).toBe('Luis Pérez')
+
+    const before = await database.customers.count()
+    await expect(
+      repo.createOrder({ newCustomer: { name: 'Fallido' }, createdDate: '2026-10-10', dueDate: '2026-10-20', channel: 'otro', items: [], customization }),
+    ).rejects.toMatchObject({ code: 'sin_conceptos' })
+    expect(await database.customers.count()).toBe(before)
+  })
+
+  it('al editar registra por separado el cambio de fecha y el de otros datos', async () => {
+    const order = await newOrder()
+    await repo.updateOrder(order.id, { dueDate: '2026-10-25', channel: 'instagram' })
+    const types = (await database.activity.where('orderId').equals(order.id).toArray()).map((a) => a.type)
+    expect(types).toContain('entrega_modificada')
+    expect(types).toContain('pedido_editado')
+    // Guardar sin cambios reales no ensucia el historial
+    const count = await database.activity.where('orderId').equals(order.id).count()
+    await repo.updateOrder(order.id, { dueDate: '2026-10-25' })
+    expect(await database.activity.where('orderId').equals(order.id).count()).toBe(count)
+  })
+
   it('detecta clientes duplicados por nombre o teléfono', async () => {
     await repo.createCustomer({ name: 'María Pérez', phone: '55 1234 5678' })
     expect(await repo.findDuplicateCustomer('maria perez')).toBeDefined()

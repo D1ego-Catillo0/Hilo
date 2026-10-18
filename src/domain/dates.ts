@@ -31,6 +31,23 @@ export function formatDate(date: string): string {
   return `${d}/${m}/${y}`
 }
 
+/** Fecha y hora legibles (DD/MM/AAAA, HH:MM) en la zona horaria indicada. */
+export function formatDateTime(iso: string, timezone: string = DEFAULT_TIMEZONE): string {
+  const date = new Date(iso)
+  if (Number.isNaN(date.getTime())) return ''
+  const parts = new Intl.DateTimeFormat('es-MX', {
+    timeZone: timezone,
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date)
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
+  return `${get('day')}/${get('month')}/${get('year')}, ${get('hour')}:${get('minute')}`
+}
+
 export function isValidISODate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false
   const d = parse(value, 'yyyy-MM-dd', new Date())
