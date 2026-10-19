@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { AppLayout } from './components/layout/AppLayout'
 import { LoadingState } from './components/ui/EmptyState'
 import { PageHeader } from './components/ui/PageHeader'
+import { CopyrightPage, PrivacyPage, TermsPage } from './pages/LegalPage'
 import { PendingSection } from './pages/PendingSection'
 
 // Cada pantalla se descarga solo cuando se visita (carga más rápida al abrir la app).
@@ -23,6 +24,9 @@ export default function App() {
     <>
       <Suspense fallback={<LoadingState />}>
         <Routes>
+          <Route path="privacidad" element={<PrivacyPage />} />
+          <Route path="terminos" element={<TermsPage />} />
+          <Route path="derechos-de-autor" element={<CopyrightPage />} />
           <Route element={<AppLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="pedidos" element={<OrdersPage />} />

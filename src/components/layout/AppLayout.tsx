@@ -68,6 +68,11 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Settings size={14} aria-hidden="true" />
           Ir a configuración
         </Link>
+        <p className="mt-3 flex flex-wrap gap-x-2 gap-y-1 text-[11px] text-muted">
+          <Link to="/privacidad" onClick={onNavigate} className="hover:text-brand hover:underline">Privacidad</Link>
+          <Link to="/terminos" onClick={onNavigate} className="hover:text-brand hover:underline">Términos</Link>
+          <Link to="/derechos-de-autor" onClick={onNavigate} className="hover:text-brand hover:underline">© Derechos</Link>
+        </p>
       </div>
     </div>
   )
