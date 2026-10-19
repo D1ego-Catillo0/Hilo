@@ -2,7 +2,7 @@ import type { Session } from '@supabase/supabase-js'
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { supabase } from '../lib/supabase'
 import { LEGAL } from '../legal/config'
-import { AuthContext, type AuthApi, type AuthState, type Profile } from './authContext'
+import { AuthContext, type AuthApi, type AuthState, type Profile } from './useAuth'
 import { friendlyAuthError } from './errors'
 
 export function AuthProvider({ children }: { children: ReactNode }) {

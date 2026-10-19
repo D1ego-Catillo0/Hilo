@@ -2,7 +2,7 @@ import { useLiveQuery } from 'dexie-react-hooks'
 import { BarChart3, CalendarDays, Home, LogOut, Menu, Package, Plus, Settings, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
-import { useAuth } from '../../auth/authContext'
+import { useAuth } from '../../auth/useAuth'
 import { db } from '../../data/db'
 import { Logo } from './Logo'
 

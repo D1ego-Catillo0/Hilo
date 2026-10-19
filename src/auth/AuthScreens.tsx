@@ -5,7 +5,7 @@ import { Logo } from '../components/layout/Logo'
 import { Button } from '../components/ui/Button'
 import { LoadingState } from '../components/ui/EmptyState'
 import { LEGAL } from '../legal/config'
-import { useAuth } from './authContext'
+import { useAuth } from './useAuth'
 
 function Card({ title, subtitle, children }: { title: string; subtitle?: string; children: ReactNode }) {
   return (

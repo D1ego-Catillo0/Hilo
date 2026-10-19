@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom'
-import { useAuth } from './authContext'
+import { useAuth } from './useAuth'
 import { AuthErrorScreen, AuthLoading, ConsentScreen, LoginScreen, NoProfileScreen } from './AuthScreens'
 
 /** Todo lo que cuelga de esta ruta exige sesión iniciada, cuenta con negocio y consentimiento vigente. */
