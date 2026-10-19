@@ -62,3 +62,8 @@ export function useOrderActivity(orderId: string | undefined): ActivityEvent[] |
     return events.reverse()
   }, [orderId])
 }
+
+/** `true` si hay datos de demostración cargados. */
+export function useHasDemoData(): boolean | undefined {
+  return useLiveQuery(async () => (await db.orders.filter((o) => o.isDemo === true).count()) > 0, [])
+}

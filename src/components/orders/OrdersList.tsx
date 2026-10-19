@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { formatDate } from '../../domain/dates'
 import { formatMoney } from '../../domain/money'
 import { isDueSoon, isOverdue, type OrderView } from '../../domain/orders'
-import { DueSoonBadge, OverdueBadge, PaidBadge, StatusBadge } from '../ui/StatusBadge'
+import { DemoBadge, DueSoonBadge, OverdueBadge, PaidBadge, StatusBadge } from '../ui/StatusBadge'
 
 function summary(view: OrderView): string {
   const names = view.order.items.map((i) => i.name)
@@ -57,7 +57,9 @@ export function OrdersList({ views, today, hideCustomer }: Props) {
           <tbody className="divide-y divide-line">
             {views.map((v) => (
               <tr key={v.order.id} className="hover:bg-app/60">
-                <td className="px-4 py-3 font-semibold text-ink">#{v.order.number}</td>
+                <td className="px-4 py-3 font-semibold text-ink">
+                  #{v.order.number} {v.order.isDemo && <DemoBadge />}
+                </td>
                 {!hideCustomer && (
                   <td className="px-4 py-3">
                     {v.customer ? (
@@ -106,7 +108,7 @@ export function OrdersList({ views, today, hideCustomer }: Props) {
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-semibold text-ink">
-                    #{v.order.number}
+                    #{v.order.number} {v.order.isDemo && <DemoBadge />}
                     {!hideCustomer && <span className="font-medium"> · {v.customer?.name ?? 'Cliente eliminado'}</span>}
                   </p>
                   <p className="mt-0.5 truncate text-sm text-muted">{summary(v)}</p>

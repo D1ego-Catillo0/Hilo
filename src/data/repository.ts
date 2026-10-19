@@ -16,6 +16,7 @@ import {
   type PaymentMethod,
 } from '../domain/types'
 import { db, type HiloDB } from './db'
+import { buildDemoData, DEFAULT_BUSINESS_NAME, DEMO_BUSINESS_NAME } from './demo'
 
 /** Error con mensaje en español pensado para mostrarse al usuario. */
 export class HiloError extends Error {
@@ -29,7 +30,7 @@ export class HiloError extends Error {
 
 export const DEFAULT_SETTINGS: BusinessSettings = {
   id: 'settings',
-  businessName: 'Mi negocio',
+  businessName: DEFAULT_BUSINESS_NAME,
   currency: 'MXN',
   timezone: DEFAULT_TIMEZONE,
   dateFormat: 'DD/MM/AAAA',
@@ -245,6 +246,54 @@ export function createRepository(database: HiloDB = db) {
     })
   }
 
+  /* ---------------- Datos de demostración ---------------- */
+
+  async function hasDemoData(): Promise<boolean> {
+    return (await database.orders.filter((o) => o.isDemo === true).count()) > 0
+  }
+
+  /** Carga el "Taller de Ejemplo". Idempotente: los ids son fijos, así que repetir no duplica. */
+  async function loadDemoData(): Promise<void> {
+    await database.transaction('rw', [database.customers, database.orders, database.payments, database.activity, database.settings], async () => {
+      const settings = await getSettings()
+      const data = buildDemoData(todayIn(settings.timezone))
+      await database.customers.bulkPut(data.customers)
+      await database.orders.bulkPut(data.orders)
+      await database.payments.bulkPut(data.payments)
+      await database.activity.bulkPut(data.activity)
+      // Los pedidos de ejemplo usan números 9001+ para no chocar con la numeración real,
+      // que no se modifica: tus pedidos reales siguen empezando en #1.
+      await database.settings.put({
+        ...settings,
+        businessName: (await database.orders.filter((o) => !o.isDemo).count()) > 0 ? settings.businessName : DEMO_BUSINESS_NAME,
+        demoPromptHandled: true,
+      })
+    })
+  }
+
+  /**
+   * Borra únicamente lo marcado como demostración. Los datos reales no se tocan.
+   * Si el nombre del negocio sigue siendo el del ejemplo, vuelve al predeterminado.
+   */
+  async function removeDemoData(): Promise<void> {
+    await database.transaction('rw', [database.customers, database.orders, database.payments, database.activity, database.settings], async () => {
+      await database.customers.filter((c) => c.isDemo === true).delete()
+      await database.orders.filter((o) => o.isDemo === true).delete()
+      await database.payments.filter((p) => p.isDemo === true).delete()
+      await database.activity.filter((a) => a.isDemo === true).delete()
+      const settings = await getSettings()
+      await database.settings.put({
+        ...settings,
+        businessName: settings.businessName === DEMO_BUSINESS_NAME ? DEFAULT_BUSINESS_NAME : settings.businessName,
+        demoPromptHandled: true,
+      })
+    })
+  }
+
+  async function dismissDemoPrompt(): Promise<void> {
+    await updateSettings({ demoPromptHandled: true })
+  }
+
   /* ---------------- Utilidades ---------------- */
 
   async function today(): Promise<string> {
@@ -262,6 +311,10 @@ export function createRepository(database: HiloDB = db) {
     updateOrder,
     changeStatus,
     addPayment,
+    hasDemoData,
+    loadDemoData,
+    removeDemoData,
+    dismissDemoPrompt,
     today,
   }
 }

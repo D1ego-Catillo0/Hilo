@@ -51,3 +51,8 @@ export function PaidBadge() {
     </span>
   )
 }
+
+/** Marca los registros de demostración para que nunca se confundan con datos reales. */
+export function DemoBadge() {
+  return <span className="inline-flex items-center rounded-full border border-line bg-app px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-muted">Ejemplo</span>
+}

@@ -4,9 +4,10 @@ Todos tus pedidos por encargo, organizados en un solo lugar.
 
 Hilo es una aplicación web para pequeños negocios que fabrican o preparan productos bajo pedido: clientes, especificaciones, fechas de entrega, anticipos, pagos pendientes y estado de producción.
 
-> **Estado actual: Etapa 3, parte A completada.**
-> Ya funcionan: clientes (lista, ficha, edición, detección de duplicados), nuevo pedido y edición de pedido, lista de pedidos con búsqueda, filtros y orden, y detalle del pedido con pagos parciales, cambio de estado, cancelación y historial.
-> Pendiente: Inicio (dashboard) y datos de demostración (Etapa 3, parte B), Calendario, Reportes y Configuración (Etapa 4) y el control de calidad final (Etapa 5). Esas secciones muestran un aviso de "sección aún no construida".
+> **Estado actual: Etapa 3 completada.**
+> Funcionan: Inicio (métricas, pedidos que requieren atención, próximas entregas), datos de ejemplo ("Taller de Ejemplo", se cargan y se quitan sin tocar tus datos), clientes, pedidos (crear, editar, filtrar, detalle con pagos parciales, estados, cancelación e historial).
+> Pendiente: Calendario, Reportes y Configuración (Etapa 4) y el control de calidad final (Etapa 5). Esas secciones muestran un aviso de "sección aún no construida".
+> **Aún no hay inicio de sesión:** los datos viven solo en este navegador. Cuentas, administración de usuarios, avisos legales y pedidos automáticos por enlace/QR están planeados para después de la Etapa 4 y requieren un backend.
 
 ## Requisitos
 
@@ -41,6 +42,7 @@ src/
   data/          Persistencia local
     db.ts          Base de datos IndexedDB (Dexie)
     repository.ts  Única puerta de entrada para leer/escribir datos de negocio
+    demo.ts        Datos del "Taller de Ejemplo" (todo marcado isDemo, fechas relativas a hoy)
   components/    Piezas visuales reutilizables (layout, ui)
   pages/         Pantallas de cada ruta
 ```

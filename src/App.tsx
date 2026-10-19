@@ -7,6 +7,7 @@ import { PageHeader } from './components/ui/PageHeader'
 import { PendingSection } from './pages/PendingSection'
 
 // Cada pantalla se descarga solo cuando se visita (carga más rápida al abrir la app).
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then((m) => ({ default: m.DashboardPage })))
 const CustomersPage = lazy(() => import('./pages/CustomersPage').then((m) => ({ default: m.CustomersPage })))
 const CustomerDetailPage = lazy(() => import('./pages/CustomerDetailPage').then((m) => ({ default: m.CustomerDetailPage })))
 const OrdersPage = lazy(() => import('./pages/OrdersPage').then((m) => ({ default: m.OrdersPage })))
@@ -23,7 +24,7 @@ export default function App() {
       <Suspense fallback={<LoadingState />}>
         <Routes>
           <Route element={<AppLayout />}>
-            <Route index element={<PendingSection title="Inicio" stage="la segunda parte de la Etapa 3" />} />
+            <Route index element={<DashboardPage />} />
             <Route path="pedidos" element={<OrdersPage />} />
             <Route path="pedidos/nuevo" element={<OrderFormPage mode="create" />} />
             <Route path="pedidos/:id" element={<OrderDetailPage />} />

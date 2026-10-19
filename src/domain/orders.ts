@@ -215,3 +215,53 @@ export function computeDashboardMetrics(views: OrderView[], today: string): Dash
     receivedCents: notCancelled.reduce((s, v) => s + v.paidCents, 0),
   }
 }
+
+/* ------------------------------------------------------------------ */
+/* Inicio: pedidos que requieren atención y próximas entregas          */
+/* ------------------------------------------------------------------ */
+
+export type AttentionReason = 'atrasado' | 'entrega_hoy' | 'entrega_proxima' | 'cobro_pendiente'
+
+export interface AttentionItem {
+  view: OrderView
+  reasons: AttentionReason[]
+}
+
+const REASON_PRIORITY: Record<AttentionReason, number> = {
+  atrasado: 0,
+  entrega_hoy: 1,
+  entrega_proxima: 2,
+  cobro_pendiente: 3,
+}
+
+/**
+ * Pedidos activos que piden acción: atrasados, con entrega hoy o en los próximos 3 días,
+ * o ya listos con saldo por cobrar. Un pedido puede tener varios motivos.
+ * Orden: primero el motivo más urgente y, a igual urgencia, la entrega más cercana.
+ */
+export function attentionItems(views: OrderView[], today: string): AttentionItem[] {
+  const items: AttentionItem[] = []
+  for (const view of views) {
+    if (!isActive(view.order)) continue
+    const reasons: AttentionReason[] = []
+    if (isOverdue(view.order, today)) reasons.push('atrasado')
+    else if (view.order.dueDate === today) reasons.push('entrega_hoy')
+    else if (isDueSoon(view.order, today, 3)) reasons.push('entrega_proxima')
+    if (view.order.status === 'listo' && view.balanceCents > 0) reasons.push('cobro_pendiente')
+    if (reasons.length) items.push({ view, reasons })
+  }
+  return items.sort((a, b) => {
+    const byReason = REASON_PRIORITY[a.reasons[0]] - REASON_PRIORITY[b.reasons[0]]
+    if (byReason !== 0) return byReason
+    const byDate = a.view.order.dueDate.localeCompare(b.view.order.dueDate)
+    return byDate !== 0 ? byDate : a.view.order.number - b.view.order.number
+  })
+}
+
+/** Entregas de pedidos activos desde hoy hasta dentro de `days` días, ordenadas por fecha. */
+export function upcomingDeliveries(views: OrderView[], today: string, days = 7): OrderView[] {
+  const end = addDaysISO(today, days)
+  return views
+    .filter((v) => isActive(v.order) && v.order.dueDate >= today && v.order.dueDate <= end)
+    .sort((a, b) => a.order.dueDate.localeCompare(b.order.dueDate) || a.order.number - b.order.number)
+}

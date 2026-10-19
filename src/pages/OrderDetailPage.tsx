@@ -8,7 +8,7 @@ import { Button } from '../components/ui/Button'
 import { buttonClass } from '../components/ui/buttonClass'
 import { EmptyState, LoadingState, Panel } from '../components/ui/EmptyState'
 import { ConfirmDialog } from '../components/ui/Modal'
-import { DueSoonBadge, OverdueBadge, PaidBadge, StatusBadge } from '../components/ui/StatusBadge'
+import { DueSoonBadge, OverdueBadge, PaidBadge, DemoBadge, StatusBadge } from '../components/ui/StatusBadge'
 import { useOrderActivity, useOrderView, useSettings, useToday } from '../data/hooks'
 import { HiloError, repo } from '../data/repository'
 import { formatDate, formatDateTime } from '../domain/dates'
@@ -112,6 +112,7 @@ export function OrderDetailPage() {
           <div className="flex flex-wrap items-center gap-2">
             <h1 className="text-2xl font-semibold tracking-tight">Pedido #{order.number}</h1>
             <StatusBadge status={order.status} />
+            {order.isDemo && <DemoBadge />}
             {isOverdue(order, today) && <OverdueBadge />}
             {isDueSoon(order, today, 3) && <DueSoonBadge />}
           </div>
