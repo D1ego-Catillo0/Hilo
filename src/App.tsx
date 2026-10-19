@@ -1,6 +1,8 @@
 import { lazy, Suspense } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { Toaster } from 'sonner'
+import { AuthProvider } from './auth/AuthContext'
+import { RequireAuth } from './auth/RequireAuth'
 import { AppLayout } from './components/layout/AppLayout'
 import { LoadingState } from './components/ui/EmptyState'
 import { PageHeader } from './components/ui/PageHeader'
@@ -21,12 +23,13 @@ function NotFound() {
 
 export default function App() {
   return (
-    <>
+    <AuthProvider>
       <Suspense fallback={<LoadingState />}>
         <Routes>
           <Route path="privacidad" element={<PrivacyPage />} />
           <Route path="terminos" element={<TermsPage />} />
           <Route path="derechos-de-autor" element={<CopyrightPage />} />
+          <Route element={<RequireAuth />}>
           <Route element={<AppLayout />}>
             <Route index element={<DashboardPage />} />
             <Route path="pedidos" element={<OrdersPage />} />
@@ -40,9 +43,10 @@ export default function App() {
             <Route path="configuracion" element={<PendingSection title="Configuración" stage="la Etapa 4 (funciones complementarias)" />} />
             <Route path="*" element={<NotFound />} />
           </Route>
+          </Route>
         </Routes>
       </Suspense>
       <Toaster position="bottom-right" richColors closeButton />
-    </>
+    </AuthProvider>
   )
 }

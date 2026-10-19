@@ -1,7 +1,8 @@
 import { useLiveQuery } from 'dexie-react-hooks'
-import { BarChart3, CalendarDays, Home, Menu, Package, Plus, Settings, Users, X } from 'lucide-react'
+import { BarChart3, CalendarDays, Home, LogOut, Menu, Package, Plus, Settings, Users, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useAuth } from '../../auth/authContext'
 import { db } from '../../data/db'
 import { Logo } from './Logo'
 
@@ -16,6 +17,8 @@ const NAV_ITEMS = [
 
 function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
   const settings = useLiveQuery(() => db.settings.get('settings'), [])
+  const { state, signOut } = useAuth()
+  const email = state.status === 'ready' ? state.profile.email : null
   return (
     <div className="flex h-full flex-col">
       <div className="px-5 py-5">
@@ -68,6 +71,15 @@ function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
           <Settings size={14} aria-hidden="true" />
           Ir a configuración
         </Link>
+        {email && (
+          <div className="mt-3 border-t border-line pt-3">
+            <p className="truncate text-xs text-muted" title={email}>{email}</p>
+            <button type="button" onClick={signOut} className="mt-1 inline-flex min-h-9 items-center gap-1.5 text-xs font-medium text-brand hover:underline">
+              <LogOut size={14} aria-hidden="true" />
+              Cerrar sesión
+            </button>
+          </div>
+        )}
         <p className="mt-3 flex flex-wrap gap-x-2 gap-y-1 text-[11px] text-muted">
           <Link to="/privacidad" onClick={onNavigate} className="hover:text-brand hover:underline">Privacidad</Link>
           <Link to="/terminos" onClick={onNavigate} className="hover:text-brand hover:underline">Términos</Link>

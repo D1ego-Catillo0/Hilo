@@ -7,7 +7,8 @@ Hilo es una aplicación web para pequeños negocios que fabrican o preparan prod
 > **Estado actual: Etapa 3 completada.**
 > Funcionan: Inicio (métricas, pedidos que requieren atención, próximas entregas), datos de ejemplo ("Taller de Ejemplo", se cargan y se quitan sin tocar tus datos), clientes, pedidos (crear, editar, filtrar, detalle con pagos parciales, estados, cancelación e historial).
 > Pendiente: Calendario, Reportes y Configuración (Etapa 4) y el control de calidad final (Etapa 5). Esas secciones muestran un aviso de "sección aún no construida".
-> **Aún no hay inicio de sesión:** los datos viven solo en este navegador. Cuentas, administración de usuarios, avisos legales y pedidos automáticos por enlace/QR están planeados para después de la Etapa 4 y requieren un backend.
+> **Inicio de sesión con correo y contraseña ya funciona** (Supabase): pantalla de login, consentimiento de avisos, cierre de sesión y avisos legales. No hay registro libre: las cuentas las crea el administrador.
+> **Importante:** los pedidos y clientes todavía se guardan solo en el navegador (IndexedDB), no en Supabase. Mientras no se migren, no uses Hilo con datos reales de varios usuarios en la misma computadora. Pendiente: panel de administrador, migración de datos a Supabase, formulario público con QR y login con Google.
 
 ## Requisitos
 
